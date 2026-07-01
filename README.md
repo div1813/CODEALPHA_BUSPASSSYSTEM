@@ -1,4 +1,4 @@
-# 🚌 Cloud-Based Bus Pass System | CodeAlpha Internship Task 3
+# 🚌 Cloud-Based Bus Pass System | CodeAlpha Internship Task 
 
 A cloud-hosted online bus ticket booking system built with HTML, CSS, and JavaScript.
 Deployed on GitHub Pages — no backend required!
@@ -6,7 +6,7 @@ Deployed on GitHub Pages — no backend required!
 ---
 
 ## 🌐 Live Demo
-[Click here to view the live project](https://div1813.github.io/CODEALPHA_BUSPASSSYSTEM)
+ https://div1813.github.io/CODEALPHA_BUSPASSSYSTEM/
 
 ---
 
