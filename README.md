@@ -54,6 +54,3 @@ Deployed on GitHub Pages — no backend required!
 - **LocalStorage** — Data Persistence
 - **GitHub Pages** — Cloud Deployment
 
----
-
-## 📁 Project Structure
