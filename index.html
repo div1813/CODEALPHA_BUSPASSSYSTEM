@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cloud Bus Pass System | CodeAlpha</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px;
+      background: linear-gradient(135deg, #2424a8, #0f4aec);
+      border-radius: 12px;
+      margin-bottom: 25px;
+      border: 1px solid #0f3460;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: #00d4ff;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #a0a0b0;
+      font-size: 0.95rem;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .tabs button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      background: #de1a1a;
+      color: #f4e91d;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 1px solid #92660e;
+      transition: all 0.3s;
+    }
+
+    .tabs button:hover, .tabs button.active {
+      background: #00d4ff;
+      color: #b9f620;
+      font-weight: bold;
+    }
+
+    .section {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #e1d208;
+      padding: 35px;
+      border-radius: 12px;
+      border: 1px solid #b11bb1;
+    }
+
+    .section h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #00d4ff;
+      font-size: 1.5rem;
+    }
+
+    .hidden { display: none; }
+
+    label {
+      display: block;
+      color: #020212;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      border: 1px solid #fa44a8;
+      background: #474748;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #00d4ff;
+    }
+
+    select option {
+      background: #48484a;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #00d4ff, #0077ff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.3s;
+      margin-top: 5px;
+    }
+
+    .btn:hover { opacity: 0.85; }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      margin-top: 10px;
+    }
+
+    .message {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+    }
+
+    .success {
+      background: #0d3b2e;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      display: block;
+    }
+
+    .error {
+      background: #3b0d0d;
+      color: #ff4444;
+      border: 1px solid #ff4444;
+      display: block;
+    }
+
+    /* Route Card */
+    .route-info {
+      background: #0f0f1a;
+      border: 1px solid #d617c9;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .route-info.show { display: block; }
+
+    .route-info p {
+      color: #a0a0b0;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .route-info span {
+      color: #00d4ff;
+      font-weight: bold;
+    }
+
+    /* Seat Map */
+    .seat-section h3 {
+      color: #00d4ff;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .seat-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .seat-legend div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #a0a0b0;
+    }
+
+    .legend-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    .available-box { background: #c910c0; border: 1px solid #00d4ff; }
+    .selected-box { background: #00d4ff; }
+    .booked-box { background: #444; }
+
+    .seat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto 20px;
+    }
+
+    .seat {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #a40d88;
+      background: #0f0f1a;
+      color: #00d4ff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-weight: bold;
+    }
+
+    .seat:hover { background: #870f77; }
+    .seat.selected { background: #00d4ff; color: #0f0f1a; }
+    .seat.booked { background: #333; color: #666; cursor: not-allowed; border-color: #333; }
+
+    /* Ticket Display */
+    .ticket {
+      background: linear-gradient(135deg, #1a1a2e, #d91aa0);
+      border: 2px solid #00d4ff;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ticket::before {
+      content: '🚌';
+      position: absolute;
+      font-size: 80px;
+      opacity: 0.05;
+      right: 10px;
+      top: 10px;
+    }
+
+    .ticket h3 {
+      color: #00d4ff;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      border-bottom: 1px solid #8e1394;
+      padding-bottom: 12px;
+    }
+
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #b618a6;
+    }
+
+    .ticket-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .ticket-label {
+      color: #a0a0b0;
+      font-size: 0.9rem;
+    }
+
+    .ticket-value {
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .ticket-id {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      background: #0f0f1a;
+      border-radius: 8px;
+      color: #00ff88;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+    }
+
+    /* My Tickets */
+    .ticket-card {
+      background: #ac27ac;
+      border: 1px solid #f0cccf;
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 15px;
+    }
+
+    .ticket-card h4 {
+      color: #00d4ff;
+      margin-bottom: 10px;
+    }
+
+    .ticket-card p {
+      color: #a0a0b0;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .ticket-card span {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .no-tickets {
+      text-align: center;
+      color: #a0a0b0;
+      padding: 30px;
+    }
+
+    .price-badge {
+      display: inline-block;
+      background: #00ff88;
+      color: #0f0f1a;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 500px) {
+      .form-row { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.4rem; }
+      .section { padding: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>🚌 Cloud Bus Pass System</h1>
+    <p>Online Ticket Booking | Secure | Scalable | Cloud-Hosted</p>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button onclick="showTab('book')" id="tab-book">🎫 Book Ticket</button>
+    <button onclick="showTab('tickets')" id="tab-tickets">📋 My Tickets</button>
+  </div>
+
+  <!-- BOOK TICKET SECTION -->
+  <div id="book" class="section">
+    <h2>🎫 Book Your Bus Ticket</h2>
+
+    <!-- Step 1: Route -->
+    <label>Select Bus Route</label>
+    <select id="route" onchange="updateRoute()">
+      <option value="">-- Choose a Route --</option>
+      <option value="R1">Route 1: Chennai → Coimbatore</option>
+      <option value="R2">Route 2: Chennai → Madurai</option>
+      <option value="R3">Route 3: Coimbatore → Bangalore</option>
+      <option value="R4">Route 4: Madurai → Trichy</option>
+      <option value="R5">Route 5: Chennai → Bangalore</option>
+    </select>
+
+    <!-- Route Info Card -->
+    <div class="route-info" id="route-info">
+      <p>🗺️ Route: <span id="info-route"></span></p>
+      <p>⏱️ Duration: <span id="info-duration"></span></p>
+      <p>💺 Available Seats: <span id="info-seats"></span></p>
+      <p>💰 Price per Seat: <span id="info-price"></span></p>
+    </div>
+
+    <!-- Step 2: Passenger Details -->
+    <div class="form-row">
+      <div>
+        <label>Passenger Name</label>
+        <input type="text" id="pass-name" placeholder="Enter full name" />
+      </div>
+      <div>
+        <label>Age</label>
+        <input type="number" id="pass-age" placeholder="Age" min="1" max="100" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label>Phone Number</label>
+        <input type="tel" id="pass-phone" placeholder="10-digit number" maxlength="10" />
+      </div>
+      <div>
+        <label>Travel Date</label>
+        <input type="date" id="pass-date" />
+      </div>
+    </div>
+
+    <!-- Step 3: Seat Selection -->
+    <div class="seat-section" id="seat-section" style="display:none;">
+      <h3>💺 Select Your Seat</h3>
+
+      <div class="seat-legend">
+        <div><div class="legend-box available-box"></div> Available</div>
+        <div><div class="legend-box selected-box"></div> Selected</div>
+        <div><div class="legend-box booked-box"></div> Booked</div>
+      </div>
+
+      <div class="seat-grid" id="seat-grid"></div>
+      <p style="text-align:center; color:#a0a0b0; font-size:0.85rem;">
+        Selected Seat: <span id="selected-seat-display" style="color:#00d4ff; font-weight:bold;">None</span>
+      </p>
+    </div>
+
+    <button class="btn" onclick="bookTicket()">🎫 Book Ticket</button>
+    <div id="book-msg" class="message"></div>
+
+    <!-- Ticket Display -->
+    <div class="ticket hidden" id="ticket-display">
+      <h3>✅ Booking Confirmed!</h3>
+      <div class="ticket-row">
+        <span class="ticket-label">Passenger</span>
+        <span class="ticket-value" id="t-name"></span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-label">Route</span>
+        <span class="ticket-value" id="t-route"></span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-label">Travel Date</span>
+        <span class="ticket-value" id="t-date"></span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-label">Seat Number</span>
+        <span class="ticket-value" id="t-seat"></span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-label">Duration</span>
+        <span class="ticket-value" id="t-duration"></span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-label">Amount Paid</span>
+        <span class="ticket-value" id="t-price"></span>
+      </div>
+      <div class="ticket-id" id="t-id"></div>
+    </div>
+  </div>
+
+  <!-- MY TICKETS SECTION -->
+  <div id="tickets" class="section hidden">
+    <h2>📋 My Tickets</h2>
+    <div id="tickets-list"></div>
+    <button class="btn btn-danger" onclick="clearTickets()">🗑️ Clear All Tickets</button>
+  </div>
+
+  <script>
+    // =====================
+    // ROUTE DATA
+    // =====================
+    const routes = {
+      R1: { name: "Chennai → Coimbatore", duration: "5 hrs", price: 350, seats: 20 },
+      R2: { name: "Chennai → Madurai",    duration: "7 hrs", price: 420, seats: 20 },
+      R3: { name: "Coimbatore → Bangalore", duration: "6 hrs", price: 380, seats: 20 },
+      R4: { name: "Madurai → Trichy",     duration: "3 hrs", price: 180, seats: 20 },
+      R5: { name: "Chennai → Bangalore",  duration: "8 hrs", price: 500, seats: 20 },
+    };
+
+    let selectedSeat = null;
+
+    // =====================
+    // TAB SWITCHING
+    // =====================
+    function showTab(tab) {
+      document.getElementById('book').classList.add('hidden');
+      document.getElementById('tickets').classList.add('hidden');
+      document.getElementById('tab-book').classList.remove('active');
+      document.getElementById('tab-tickets').classList.remove('active');
+      document.getElementById(tab).classList.remove('hidden');
+      document.getElementById('tab-' + tab).classList.add('active');
+      if (tab === 'tickets') loadTickets();
+    }
+
+    // =====================
+    // UPDATE ROUTE INFO
+    // =====================
+    function updateRoute() {
+      const routeKey = document.getElementById('route').value;
+      const infoBox = document.getElementById('route-info');
+      const seatSection = document.getElementById('seat-section');
+
+      if (!routeKey) {
+        infoBox.classList.remove('show');
+        seatSection.style.display = 'none';
+        return;
+      }
+
+      const r = routes[routeKey];
+      const bookedSeats = getBookedSeats(routeKey);
+      const available = r.seats - bookedSeats.length;
+
+      document.getElementById('info-route').textContent = r.name;
+      document.getElementById('info-duration').textContent = r.duration;
+      document.getElementById('info-seats').textContent = available + ' / ' + r.seats;
+      document.getElementById('info-price').textContent = '₹' + r.price;
+      infoBox.classList.add('show');
+
+      buildSeatGrid(routeKey);
+      seatSection.style.display = 'block';
+      selectedSeat = null;
+      document.getElementById('selected-seat-display').textContent = 'None';
+    }
+
+    // =====================
+    // BUILD SEAT GRID
+    // =====================
+    function buildSeatGrid(routeKey) {
+      const grid = document.getElementById('seat-grid');
+      const booked = getBookedSeats(routeKey);
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= 20; i++) {
+        const seat = document.createElement('div');
+        seat.className = 'seat';
+        seat.textContent = 'S' + i;
+        seat.dataset.seat = i;
+
+        if (booked.includes(i)) {
+          seat.classList.add('booked');
+        } else {
+          seat.onclick = () => selectSeat(i, seat);
+        }
+
+        grid.appendChild(seat);
+      }
+    }
+
+    // =====================
+    // SELECT SEAT
+    // =====================
+    function selectSeat(num, el) {
+      document.querySelectorAll('.seat').forEach(s => {
+        if (!s.classList.contains('booked')) s.classList.remove('selected');
+      });
+      el.classList.add('selected');
+      selectedSeat = num;
+      document.getElementById('selected-seat-display').textContent = 'S' + num;
+    }
+
+    // =====================
+    // GET BOOKED SEATS
+    // =====================
+    function getBookedSeats(routeKey) {
+      const tickets = JSON.parse(localStorage.getItem('busTickets') || '[]');
+      return tickets
+        .filter(t => t.routeKey === routeKey)
+        .map(t => t.seat);
+    }
+
+    // =====================
+    // GENERATE TICKET ID
+    // =====================
+    function generateTicketId() {
+      return 'BUS-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+    }
+
+    // =====================
+    // BOOK TICKET
+    // =====================
+    function bookTicket() {
+      const routeKey = document.getElementById('route').value;
+      const name     = document.getElementById('pass-name').value.trim();
+      const age      = document.getElementById('pass-age').value.trim();
+      const phone    = document.getElementById('pass-phone').value.trim();
+      const date     = document.getElementById('pass-date').value;
+
+      // Validations
+      if (!routeKey) {
+        showMsg('book-msg', '⚠️ Please select a route!', 'error'); return;
+      }
+      if (!name) {
+        showMsg('book-msg', '⚠️ Please enter passenger name!', 'error'); return;
+      }
+      if (!age || age < 1 || age > 100) {
+        showMsg('book-msg', '⚠️ Please enter a valid age!', 'error'); return;
+      }
+      if (!phone || phone.length !== 10) {
+        showMsg('book-msg', '⚠️ Please enter a valid 10-digit phone number!', 'error'); return;
+      }
+      if (!date) {
+        showMsg('book-msg', '⚠️ Please select a travel date!', 'error'); return;
+      }
+      if (!selectedSeat) {
+        showMsg('book-msg', '⚠️ Please select a seat!', 'error'); return;
+      }
+
+      const r = routes[routeKey];
+      const ticketId = generateTicketId();
+
+      // Save ticket
+      const tickets = JSON.parse(localStorage.getItem('busTickets') || '[]');
+      tickets.push({
+        ticketId, routeKey,
+        route: r.name,
+        name, age, phone, date,
+        seat: selectedSeat,
+        price: r.price,
+        duration: r.duration,
+        bookedAt: new Date().toLocaleString()
+      });
+      localStorage.setItem('busTickets', JSON.stringify(tickets));
+
+      // Show ticket
+      document.getElementById('t-name').textContent     = name + ' (Age: ' + age + ')';
+      document.getElementById('t-route').textContent    = r.name;
+      document.getElementById('t-date').textContent     = date;
+      document.getElementById('t-seat').textContent     = 'S' + selectedSeat;
+      document.getElementById('t-duration').textContent = r.duration;
+      document.getElementById('t-price').textContent    = '₹' + r.price;
+      document.getElementById('t-id').textContent       = '🎫 Ticket ID: ' + ticketId;
+      document.getElementById('ticket-display').classList.remove('hidden');
+
+      showMsg('book-msg', '✅ Ticket booked successfully!', 'success');
+
+      // Reset form
+      document.getElementById('route').value = '';
+      document.getElementById('pass-name').value = '';
+      document.getElementById('pass-age').value = '';
+      document.getElementById('pass-phone').value = '';
+      document.getElementById('pass-date').value = '';
+      document.getElementById('route-info').classList.remove('show');
+      document.getElementById('seat-section').style.display = 'none';
+      selectedSeat = null;
+    }
+
+    // =====================
+    // SHOW MESSAGE
+    // =====================
+    function showMsg(id, msg, type) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = 'message ' + type;
+    }
+
+    // =====================
+    // LOAD MY TICKETS
+    // =====================
+    function loadTickets() {
+      const tickets = JSON.parse(localStorage.getItem('busTickets') || '[]');
+      const list = document.getElementById('tickets-list');
+
+      if (tickets.length === 0) {
+        list.innerHTML = '<div class="no-tickets">🎫 No tickets booked yet!<br>Go to Book Ticket to get started.</div>';
+        return;
+      }
+
+      list.innerHTML = tickets.reverse().map(t => `
+        <div class="ticket-card">
+          <h4>🎫 ${t.ticketId}</h4>
+          <p>👤 Passenger: <span>${t.name}</span></p>
+          <p>🗺️ Route: <span>${t.route}</span></p>
+          <p>📅 Date: <span>${t.date}</span></p>
+          <p>💺 Seat: <span>S${t.seat}</span></p>
+          <p>💰 Price: <span class="price-badge">₹${t.price}</span></p>
+          <p>🕐 Booked At: <span>${t.bookedAt}</span></p>
+        </div>
+      `).join('');
+    }
+
+    // =====================
+    // CLEAR ALL TICKETS
+    // =====================
+    function clearTickets() {
+      if (confirm('Are you sure you want to clear all tickets?')) {
+        localStorage.removeItem('busTickets');
+        loadTickets();
+      }
+    }
+
+    // Set min date to today
+    document.getElementById('pass-date').min = new Date().toISOString().split('T')[0];
+
+    // Show book tab by default
+    showTab('book');
+  </script>
+
+</body>
+</html>
